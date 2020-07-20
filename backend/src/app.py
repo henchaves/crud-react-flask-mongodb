@@ -21,16 +21,20 @@ def getUsers():
     return jsonify(users)
 
 @app.route("/user/<id>", methods=["GET"])
-def getUser():
-    return "received"
+def getUser(id):
+    user = db.find_one({"_id": ObjectId(id)})
+    user["_id"] = str(user["_id"])
+    return jsonify(user)
 
-@app.route("/users/<id>", methods=["GET"])
-def deleteUser():
-    return "received"
+@app.route("/users/<id>", methods=["DELETE"])
+def deleteUser(id):
+    db.delete_one({"_id": ObjectId(id)})
+    return {"message": "User deleted."}
 
 @app.route("/users/<id>", methods=["PUT"])
-def updateUser():
-    return "received"
+def updateUser(id):
+    db.update_one({"_id": ObjectId(id)}, {"$set": request.json})
+    return {"message": "User updated."}
 
 if __name__ == "__main__":
     app.run(debug=True)
