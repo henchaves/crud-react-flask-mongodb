@@ -25,6 +25,7 @@ export function Users() {
 
         const data = await res.json();
         console.log(data);
+        await getUsers();
     }
 
     const getUsers = async () => {
@@ -36,10 +37,20 @@ export function Users() {
     useEffect(() => {
         getUsers();
     }, [])
-
-    const deleteUser = (id) => {
+    
+    const editUser = (id) => {
         console.log(id)
     }
+
+    const deleteUser = async (id) => {
+        const res = await fetch(`${API}/users/${id}`, {
+            method: "DELETE"
+        })
+        const data = await res.json();
+        console.log(data)
+        await getUsers();
+    }
+
 
     return (
         <div className="row">
@@ -97,7 +108,7 @@ export function Users() {
                                 <td>{user.email}</td>
                                 <td>{user.password}</td>
                                 <td>
-                                    <button className="btn btn-secondary btn-sm btn-block">
+                                    <button className="btn btn-secondary btn-sm btn-block" onClick={() => editUser(user._id)}>
                                         Edit
                                     </button>
                                     <button className="btn btn-danger btn-sm btn-block" onClick={() => deleteUser(user._id)}>
