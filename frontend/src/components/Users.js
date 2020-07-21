@@ -7,25 +7,51 @@ export function Users() {
     const [name, setName] = useState("");
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
+    const [id, setId] = useState("");
     const [users, setUsers] = useState([]);
+    const [editing, setEditing] = useState(false);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        const res = await fetch(`${API}/users`, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify({
-                name,
-                email,
-                password
-            })
-        });
 
-        const data = await res.json();
-        console.log(data);
+        if (!editing) {
+            const res = await fetch(`${API}/users`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    name,
+                    email,
+                    password
+                })
+            });
+
+            const data = await res.json();
+            console.log(data);
+        } else {
+            const res = await fetch(`${API}/users/${id}`, {
+                method: "PUT",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    name,
+                    email,
+                    password
+                })
+            });
+            const data = await res.json();
+            console.log(data);
+            setEditing(false);
+            setId("");
+        }
+
         await getUsers();
+
+        setName("");
+        setEmail("");
+        setPassword("");
     }
 
     const getUsers = async () => {
@@ -38,17 +64,28 @@ export function Users() {
         getUsers();
     }, [])
     
-    const editUser = (id) => {
-        console.log(id)
+    const editUser = async (id) => {
+        const res = await fetch(`${API}/user/${id}`);
+        const data = await res.json();
+        
+        setEditing(true);
+        setId(id);
+
+        setName(data.name);
+        setEmail(data.email);
+        setPassword(data.password);
     }
 
     const deleteUser = async (id) => {
-        const res = await fetch(`${API}/users/${id}`, {
-            method: "DELETE"
-        })
-        const data = await res.json();
-        console.log(data)
-        await getUsers();
+        const userResponse = window.confirm("Are you sure you want to delete it?")
+        if (userResponse){
+            const res = await fetch(`${API}/users/${id}`, {
+                method: "DELETE"
+            })
+            const data = await res.json();
+            console.log(data)
+            await getUsers();
+        }
     }
 
 
@@ -87,7 +124,7 @@ export function Users() {
                         />
                     </div>
                     <button className="btn btn-primary btn-block">
-                        Create
+                        {editing ? "Update" : "Create"}
                     </button>
                 </form>
             </div>
